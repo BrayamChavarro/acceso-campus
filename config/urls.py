@@ -14,25 +14,17 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
-from django.urls import path, include
+from django.conf import settings
+from django.views.static import serve
+from django.urls import re_path, path, include
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 urlpatterns = [
+    # Servir archivos media en producción (Render)
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
+    
     path('admin/', admin.site.urls),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('', include('core.urls')),
-]
-
-from django.conf import settings
-from django.conf.urls.static import static
-
-# En producción (Render), permitimos que Django sirva archivos media.
-# IMPORTANTE: En el plan gratuito de Render, estos archivos se borrarán en cada redeploy.
-from django.views.static import serve
-from django.urls import re_path
-
-urlpatterns += [
-    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': settings.MEDIA_ROOT}),
 ]
