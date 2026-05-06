@@ -3,7 +3,7 @@ import Webcam from 'react-webcam';
 import QRCodeLib from 'react-qr-code';
 const QRCode = QRCodeLib.default || QRCodeLib.QRCode || QRCodeLib;
 import axios from 'axios';
-import { Camera, CheckCircle, ChevronRight, ChevronLeft, QrCode, Download } from 'lucide-react';
+import { Camera, CheckCircle, ChevronRight, ChevronLeft, QrCode, Download, RefreshCw } from 'lucide-react';
 
 const API_URL = `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/api`;
 
@@ -27,6 +27,9 @@ const RegistroEstudiante = () => {
     });
 
     const webcamRef = useRef(null);
+    const [facingMode, setFacingMode] = useState('user'); // 'user' = frontal, 'environment' = trasera
+
+    const toggleCamera = () => setFacingMode(prev => prev === 'user' ? 'environment' : 'user');
 
     const capture = useCallback((field) => {
         const imageSrc = webcamRef.current.getScreenshot();
@@ -84,14 +87,28 @@ const RegistroEstudiante = () => {
                     </button>
                 </div>
             ) : (
-                <div className="mb-4 bg-black rounded-lg overflow-hidden shadow-md flex justify-center w-full max-w-md">
-                    <Webcam
-                        audio={false}
-                        ref={webcamRef}
-                        screenshotFormat="image/jpeg"
-                        videoConstraints={{ facingMode: "environment" }}
-                        className="w-full"
-                    />
+                <div className="mb-4 w-full max-w-md">
+                    <div className="relative bg-black rounded-lg overflow-hidden shadow-md">
+                        <Webcam
+                            audio={false}
+                            ref={webcamRef}
+                            screenshotFormat="image/jpeg"
+                            videoConstraints={{ facingMode }}
+                            className="w-full"
+                            mirrored={facingMode === 'user'}
+                        />
+                        {/* Botón voltear cámara */}
+                        <button
+                            onClick={toggleCamera}
+                            className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white p-2 rounded-full shadow-lg transition"
+                            title={facingMode === 'user' ? 'Cambiar a cámara trasera' : 'Cambiar a cámara frontal'}
+                        >
+                            <RefreshCw size={18} />
+                        </button>
+                        <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+                            {facingMode === 'user' ? '📱 Cámara frontal' : '📷 Cámara trasera'}
+                        </div>
+                    </div>
                 </div>
             )}
 
