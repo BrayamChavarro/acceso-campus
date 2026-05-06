@@ -9,7 +9,8 @@ import RegistroVisitante from './components/RegistroVisitante'
 
 import AdminDashboard from './components/AdminDashboard'
 
-const API_URL = 'http://127.0.0.1:8000/api'
+const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
+const API_URL = `${API_BASE}/api`
 
 function ControlAcceso() {
   const [token, setToken] = useState(null)
@@ -316,7 +317,7 @@ function ControlAcceso() {
                       <div className={`mt-2 ${isDarkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-gradient-to-br from-blue-50 to-white border-blue-100'} p-6 rounded-2xl border shadow-sm`}>
                           <div className="flex gap-6 items-center">
                               {resultado.estudiante.foto_estudiante_url ? (
-                                  <img src={`http://127.0.0.1:8000${resultado.estudiante.foto_estudiante_url}`} alt="Estudiante" className={`w-28 h-28 object-cover rounded-full shadow-md border-4 ${isDarkMode ? 'border-slate-800' : 'border-white'}`} />
+                                  <img src={`${API_BASE}${resultado.estudiante.foto_estudiante_url}`} alt="Estudiante" className={`w-28 h-28 object-cover rounded-full shadow-md border-4 ${isDarkMode ? 'border-slate-800' : 'border-white'}`} />
                               ) : (
                                   <div className={`w-28 h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
                                       <User size={40} />
@@ -350,7 +351,7 @@ function ControlAcceso() {
                                       <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent p-2 z-10">
                                           <span className="text-white text-xs font-medium">Vista Frontal</span>
                                       </div>
-                                      <img src={`http://127.0.0.1:8000${resultado.dispositivo.foto_frontal_url}`} alt="Frontal" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110" />
+                                      <img src={`${API_BASE}${resultado.dispositivo.foto_frontal_url}`} alt="Frontal" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110" />
                                   </div>
                               )}
                               {resultado.dispositivo.foto_respaldo_url && (
@@ -358,7 +359,7 @@ function ControlAcceso() {
                                       <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent p-2 z-10">
                                           <span className="text-white text-xs font-medium">Vista Respaldo</span>
                                       </div>
-                                      <img src={`http://127.0.0.1:8000${resultado.dispositivo.foto_respaldo_url}`} alt="Respaldo" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110" />
+                                      <img src={`${API_BASE}${resultado.dispositivo.foto_respaldo_url}`} alt="Respaldo" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110" />
                                   </div>
                               )}
                           </div>

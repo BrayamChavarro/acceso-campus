@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Env files - keep .env.production (has public API URL), ignore local .env
+.env
+.env.local
+.env.development.local
+.env.test.local
+# .env.production is intentionally NOT ignored so Render can pick it up

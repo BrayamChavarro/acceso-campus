@@ -5,7 +5,7 @@ import QRCodeLib from 'react-qr-code';
 const QRCode = QRCodeLib.default || QRCodeLib.QRCode || QRCodeLib;
 import { AlertCircle, ArrowLeft, Download } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8000/api';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/api`;
 
 const RecuperarQR = () => {
     const [formData, setFormData] = useState({ documento_identidad: '', codigo_estudiante: '' });

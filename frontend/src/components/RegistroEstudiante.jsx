@@ -5,7 +5,7 @@ const QRCode = QRCodeLib.default || QRCodeLib.QRCode || QRCodeLib;
 import axios from 'axios';
 import { Camera, CheckCircle, ChevronRight, ChevronLeft, QrCode, Download } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8000/api';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/api`;
 
 const RegistroEstudiante = () => {
     const [step, setStep] = useState(1);

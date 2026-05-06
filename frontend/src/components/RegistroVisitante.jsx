@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { UserPlus, ChevronRight, CheckCircle, Search, UserCheck } from 'lucide-react';
 
-const API_URL = 'http://127.0.0.1:8000/api';
+const API_URL = `${import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'}/api`;
 
 const RegistroVisitante = ({ token, isDarkMode }) => {
     const [step, setStep] = useState(1); // 1: Buscar CC, 2: Confirmar/Rellenar datos
