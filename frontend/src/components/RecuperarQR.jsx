@@ -34,15 +34,34 @@ const RecuperarQR = () => {
         if (!wrapper) return;
         const svg = wrapper.querySelector("svg");
         if (!svg) return;
+
         const svgData = new XMLSerializer().serializeToString(svg);
-        const blob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement("a");
-        link.href = url;
-        link.download = `QR_Acceso_${formData.codigo_estudiante}.svg`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
+        const svgUrl = URL.createObjectURL(svgBlob);
+
+        const img = new Image();
+        img.onload = () => {
+            const padding = 24;
+            const canvas = document.createElement("canvas");
+            canvas.width  = img.width  + padding * 2;
+            canvas.height = img.height + padding * 2;
+            const ctx = canvas.getContext("2d");
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, padding, padding);
+            URL.revokeObjectURL(svgUrl);
+            canvas.toBlob((blob) => {
+                const url  = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href     = url;
+                link.download = `QR_Acceso_${formData.codigo_estudiante}.png`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }, "image/png");
+        };
+        img.src = svgUrl;
     };
 
     return (
@@ -131,7 +150,7 @@ const RecuperarQR = () => {
                             </div>
                             
                             <button onClick={downloadQR} className="w-full bg-green-600 text-white px-6 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 shadow mb-4 transition">
-                                <Download size={18} /> Descargar QR
+                                <Download size={18} /> Descargar QR (PNG)
                             </button>
                             
                             <button onClick={() => setQrData(null)} className="w-full bg-gray-100 text-gray-700 px-6 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-200 transition">

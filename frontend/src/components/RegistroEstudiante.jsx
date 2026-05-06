@@ -276,7 +276,7 @@ const RegistroEstudiante = () => {
 
                     <div className="flex gap-4">
                         <button onClick={downloadQR} className="bg-green-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 shadow">
-                            <Download size={18} /> Descargar QR
+                            <Download size={18} /> Descargar QR (PNG)
                         </button>
                         <button onClick={resetForm} className="bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 shadow">
                             <QrCode size={18} /> Nuevo Registro
