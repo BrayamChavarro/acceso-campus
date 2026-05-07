@@ -1,6 +1,8 @@
 import base64
+import io
 import uuid
 
+import cloudinary.uploader
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.db import transaction
@@ -54,14 +56,15 @@ class EstudianteViewSet(viewsets.ModelViewSet):
         def save_b64_image(b64_str, filename_prefix):
             if not b64_str:
                 return None
-
             if "," in b64_str:
                 _, b64_str = b64_str.split(",", 1)
-
             image_bytes = base64.b64decode(b64_str)
-            filename = f"{filename_prefix}_{uuid.uuid4().hex}.jpg"
-            path = default_storage.save(f"estudiantes/{filename}", ContentFile(image_bytes))
-            return default_storage.url(path)
+            result = cloudinary.uploader.upload(
+                io.BytesIO(image_bytes),
+                folder="acceso-campus",
+                resource_type="image",
+            )
+            return result["secure_url"]
 
         try:
             with transaction.atomic():
