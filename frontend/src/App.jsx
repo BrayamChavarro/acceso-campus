@@ -327,47 +327,47 @@ function ControlAcceso() {
                           {resultado.nuevo_estado === 'ADENTRO' ? 'ENTRADA' : 'SALIDA'} AUTORIZADA
                       </h2>
                       
-                      <div className={`mt-2 ${isDarkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-gradient-to-br from-blue-50 to-white border-blue-100'} p-6 rounded-2xl border shadow-sm`}>
-                          <div className="flex gap-6 items-center">
+                      <div className={`mt-2 ${isDarkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-gradient-to-br from-blue-50 to-white border-blue-100'} p-4 sm:p-6 rounded-2xl border shadow-sm`}>
+                          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-center sm:items-start">
                               {resultado.estudiante.foto_estudiante_url ? (
                                   <SafeImage
                                     src={getImgUrl(resultado.estudiante.foto_estudiante_url)}
                                     alt="Estudiante"
-                                    className={`w-28 h-28 object-cover rounded-full shadow-md border-4 ${isDarkMode ? 'border-slate-800' : 'border-white'}`}
+                                    className={`w-24 h-24 sm:w-28 sm:h-28 object-cover rounded-full shadow-md border-4 ${isDarkMode ? 'border-slate-800' : 'border-white'}`}
                                     fallback={
-                                      <div className={`w-28 h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
+                                      <div className={`w-24 h-24 sm:w-28 sm:h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
                                         <User size={40} />
                                       </div>
                                     }
                                   />
                               ) : (
-                                  <div className={`w-28 h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
+                                  <div className={`w-24 h-24 sm:w-28 sm:h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
                                       <User size={40} />
                                   </div>
                               )}
-                              <div className="flex-1">
+                              <div className="flex-1 w-full min-w-0 text-center sm:text-left">
                                   <span className={`text-xs tracking-wider uppercase ${isDarkMode ? 'text-blue-400' : 'text-blue-500'} font-bold block mb-1`}>Estudiante Verificado</span>
-                                  <strong className={`text-2xl ${isDarkMode ? 'text-white' : 'text-gray-800'} block leading-tight mb-2`}>{resultado.estudiante.nombre_completo}</strong>
-                                  <div className={`flex flex-wrap items-center gap-2 mb-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
+                                  <strong className={`text-xl sm:text-2xl ${isDarkMode ? 'text-white' : 'text-gray-800'} block leading-tight mb-2 break-words`}>{resultado.estudiante.nombre_completo}</strong>
+                                  <div className={`flex flex-wrap justify-center sm:justify-start items-center gap-2 mb-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
                                       <span className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'} px-3 py-1 rounded-full border shadow-sm font-medium`}>{resultado.estudiante.documento_identidad}</span>
                                       <span className={`${isDarkMode ? 'bg-slate-800 border-slate-700' : 'bg-white border-gray-200'} px-3 py-1 rounded-full border shadow-sm font-medium`}>{resultado.estudiante.codigo_estudiante}</span>
                                   </div>
-                                  <div className={`text-sm flex flex-col gap-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>
-                                      {resultado.estudiante.carrera && <span className="flex items-center gap-2"><ClipboardCheck size={16} className="text-gray-400"/> {resultado.estudiante.carrera}</span>}
-                                      <span className="flex items-center gap-2"><User size={16} className="text-gray-400"/> {resultado.estudiante.correo_institucional}</span>
+                                  <div className={`text-sm flex flex-col gap-1.5 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'} items-center sm:items-start`}>
+                                      {resultado.estudiante.carrera && <span className="flex items-center gap-2 text-center sm:text-left"><ClipboardCheck size={16} className="text-gray-400 shrink-0"/> <span className="break-words">{resultado.estudiante.carrera}</span></span>}
+                                      <span className="flex items-center gap-2 text-center sm:text-left"><User size={16} className="text-gray-400 shrink-0"/> <span className="break-words">{resultado.estudiante.correo_institucional}</span></span>
                                   </div>
                               </div>
                           </div>
                       </div>
                       
-                      <div className={`mt-6 ${isDarkMode ? 'bg-slate-900/50 border-slate-700' : 'bg-gray-50/80 border-gray-200'} p-5 rounded-2xl border`}>
+                      <div className={`mt-6 ${isDarkMode ? 'bg-slate-900/50 border-slate-700' : 'bg-gray-50/80 border-gray-200'} p-4 sm:p-5 rounded-2xl border`}>
                           <div className="flex justify-between items-center mb-4">
                               <span className={`text-sm uppercase ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} font-bold flex items-center gap-2`}>
                                   <Camera size={16}/> Dispositivo Registrado
                               </span>
                               <span className={`text-xs ${isDarkMode ? 'bg-slate-800 text-gray-300 border-slate-700' : 'bg-white text-gray-700 border-gray-200'} border px-3 py-1 rounded-full font-mono shadow-sm`}>ID: {resultado.dispositivo.codigo_qr.substring(0,8)}...</span>
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-2 gap-3 sm:gap-4">
                               {resultado.dispositivo.foto_frontal_url && (
                                   <div className={`group relative overflow-hidden rounded-xl border ${isDarkMode ? 'border-slate-700 bg-slate-800' : 'border-gray-200 bg-white'} shadow-sm`}>
                                       <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent p-2 z-10">
@@ -376,9 +376,9 @@ function ControlAcceso() {
                                       <SafeImage
                                         src={getImgUrl(resultado.dispositivo.foto_frontal_url)}
                                         alt="Frontal"
-                                        className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110"
+                                        className="w-full h-28 sm:h-32 object-cover transition-transform duration-300 group-hover:scale-110"
                                         fallback={
-                                          <div className={`w-full h-32 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`} />
+                                          <div className={`w-full h-28 sm:h-32 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`} />
                                         }
                                       />
                                   </div>
@@ -391,9 +391,9 @@ function ControlAcceso() {
                                       <SafeImage
                                         src={getImgUrl(resultado.dispositivo.foto_respaldo_url)}
                                         alt="Respaldo"
-                                        className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110"
+                                        className="w-full h-28 sm:h-32 object-cover transition-transform duration-300 group-hover:scale-110"
                                         fallback={
-                                          <div className={`w-full h-32 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`} />
+                                          <div className={`w-full h-28 sm:h-32 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`} />
                                         }
                                       />
                                   </div>
@@ -402,7 +402,7 @@ function ControlAcceso() {
                       </div>
                     </div>
                     
-                    <button onClick={limpiarYContinuar} className="relative z-10 mt-8 w-full bg-blue-600 text-white py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-lg">
+                    <button onClick={limpiarYContinuar} className="relative z-10 mt-6 sm:mt-8 w-full bg-blue-600 text-white py-3.5 sm:py-4 rounded-xl font-bold hover:bg-blue-700 shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-base sm:text-lg">
                         Confirmar y Continuar <ArrowRight size={20}/>
                     </button>
                 </div>
