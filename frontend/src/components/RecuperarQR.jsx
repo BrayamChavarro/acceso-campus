@@ -21,8 +21,8 @@ const RecuperarQR = () => {
 
         try {
             const payload = {
-                documento_identidad: formData.documento_identidad?.trim(),
-                codigo_estudiante: formData.codigo_estudiante?.trim(),
+                documento_identidad: formData.documento_identidad,
+                codigo_estudiante: formData.codigo_estudiante,
             }
             const res = await axios.post(`${API_URL}/estudiantes/recuperar_qr/`, payload);
             setQrData(res.data);

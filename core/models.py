@@ -12,7 +12,8 @@ class CodigoEstudianteSequence(models.Model):
 
 class Estudiante(models.Model):
     cc = models.CharField(max_length=20, primary_key=True)
-    codigo_estudiante = models.CharField(max_length=50, unique=True)
+    # Puede contener letras, espacios, etc. (se valida solo unicidad).
+    codigo_estudiante = models.CharField(max_length=200, unique=True)
     nombre_completo = models.CharField(max_length=200)
     correo_institucional = models.EmailField(max_length=200, unique=True)
     carrera = models.CharField(max_length=150, null=True, blank=True)

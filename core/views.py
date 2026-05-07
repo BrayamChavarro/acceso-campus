@@ -73,7 +73,9 @@ class EstudianteViewSet(viewsets.ModelViewSet):
         data = request.data
 
         cc = data.get('documento_identidad')
-        codigo_estudiante = (data.get('codigo_estudiante') or '').strip()
+        # Permitir cualquier carácter (incl. espacios). Si viene solo espacios, lo tratamos como vacío.
+        codigo_raw = data.get('codigo_estudiante')
+        codigo_estudiante = '' if (isinstance(codigo_raw, str) and codigo_raw.strip() == '') else (codigo_raw or '')
         nombre_completo = data.get('nombre_completo')
         correo_institucional = data.get('correo_institucional')
         carrera = data.get('carrera')
