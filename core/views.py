@@ -260,6 +260,12 @@ class HistorialMovimientoViewSet(viewsets.ReadOnlyModelViewSet):
                 'hora_ingreso': entrada.fecha_hora.strftime('%H:%M') if entrada else None,
                 'hora_salida': salida.fecha_hora.strftime('%H:%M') if salida else None,
                 'estado_actual': disp.estado_actual,
+                # URLs absolutas (Cloudinary) o rutas relativas (/media/...) para el dashboard
+                'foto_estudiante': est.foto_estudiante_url,
+                'foto_frontal': disp.foto_frontal_url,
+                'foto_respaldo': disp.foto_respaldo_url,
+                'marca': disp.marca or '',
+                'color': disp.color or '',
             })
 
         # --- KPIs ---
