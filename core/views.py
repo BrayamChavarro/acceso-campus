@@ -178,6 +178,105 @@ class DispositivoViewSet(viewsets.ModelViewSet):
 
 
 class HistorialMovimientoViewSet(viewsets.ReadOnlyModelViewSet):
-    # Usualmente el historial solo se lee por los administradores (ReadOnly)
     queryset = HistorialMovimiento.objects.all().order_by('-fecha_hora')
     serializer_class = HistorialMovimientoSerializer
+
+    @action(detail=False, methods=['get'])
+    def reporte_sesiones(self, request):
+        from datetime import date, timedelta
+        from django.db.models import Q
+
+        rango = request.query_params.get('rango', 'hoy')
+        search = request.query_params.get('search', '').strip()
+        fecha_especifica = request.query_params.get('fecha_especifica', '')
+
+        hoy = date.today()
+
+        # --- Rango base ---
+        if rango == 'hoy':
+            qs = HistorialMovimiento.objects.filter(fecha_hora__date=hoy)
+        elif rango == 'semana':
+            inicio = hoy - timedelta(days=hoy.weekday())
+            if fecha_especifica:
+                try:
+                    dia = date.fromisoformat(fecha_especifica)
+                    qs = HistorialMovimiento.objects.filter(fecha_hora__date=dia)
+                except ValueError:
+                    qs = HistorialMovimiento.objects.filter(fecha_hora__date__range=[inicio, hoy])
+            else:
+                qs = HistorialMovimiento.objects.filter(fecha_hora__date__range=[inicio, hoy])
+        elif rango == 'mes':
+            inicio_mes = hoy.replace(day=1)
+            if fecha_especifica:
+                try:
+                    dia = date.fromisoformat(fecha_especifica)
+                    qs = HistorialMovimiento.objects.filter(fecha_hora__date=dia)
+                except ValueError:
+                    qs = HistorialMovimiento.objects.filter(fecha_hora__date__range=[inicio_mes, hoy])
+            else:
+                qs = HistorialMovimiento.objects.filter(fecha_hora__date__range=[inicio_mes, hoy])
+        else:  # 'todos'
+            qs = HistorialMovimiento.objects.all()
+
+        # --- Búsqueda ---
+        if search:
+            qs = qs.filter(
+                Q(dispositivo__estudiante__nombre_completo__icontains=search) |
+                Q(dispositivo__estudiante__cc__icontains=search) |
+                Q(dispositivo__estudiante__codigo_estudiante__icontains=search) |
+                Q(dispositivo__estudiante__correo_institucional__icontains=search)
+            )
+
+        qs = qs.select_related('dispositivo__estudiante').order_by('dispositivo', 'fecha_hora')
+
+        # --- Agrupar por dispositivo + fecha (sesión = entrada + salida del mismo día) ---
+        from collections import defaultdict
+        grupos = defaultdict(lambda: {'entrada': None, 'salida': None, 'dispositivo': None, 'estudiante': None})
+
+        for mov in qs:
+            key = (mov.dispositivo_id, mov.fecha_hora.date().isoformat())
+            grupos[key]['dispositivo'] = mov.dispositivo
+            grupos[key]['estudiante'] = mov.dispositivo.estudiante
+            if mov.tipo_movimiento == HistorialMovimiento.TipoMovimiento.ENTRADA:
+                if grupos[key]['entrada'] is None:
+                    grupos[key]['entrada'] = mov
+            else:
+                grupos[key]['salida'] = mov
+
+        sesiones = []
+        for (disp_id, fecha_str), data in sorted(grupos.items(), key=lambda x: x[0][1], reverse=True):
+            est = data['estudiante']
+            disp = data['dispositivo']
+            entrada = data['entrada']
+            salida = data['salida']
+            sesiones.append({
+                'id': f"{disp_id}-{fecha_str}",
+                'estudiante': est.nombre_completo,
+                'cc': est.cc,
+                'codigo_estudiante': est.codigo_estudiante,
+                'carrera': est.carrera or '',
+                'correo': est.correo_institucional,
+                'fecha': fecha_str,
+                'hora_ingreso': entrada.fecha_hora.strftime('%H:%M') if entrada else None,
+                'hora_salida': salida.fecha_hora.strftime('%H:%M') if salida else None,
+                'estado_actual': disp.estado_actual,
+            })
+
+        # --- KPIs ---
+        estudiantes_adentro = Dispositivo.objects.filter(
+            estado_actual=Dispositivo.EstadoActual.ADENTRO
+        ).count()
+
+        ingresos_hoy = HistorialMovimiento.objects.filter(
+            fecha_hora__date=hoy,
+            tipo_movimiento=HistorialMovimiento.TipoMovimiento.ENTRADA
+        ).count()
+
+        return Response({
+            'sesiones': sesiones,
+            'resumen': {
+                'estudiantes_adentro': estudiantes_adentro,
+                'ingresos_hoy': ingresos_hoy,
+                'total_registros': len(sesiones),
+            }
+        })
