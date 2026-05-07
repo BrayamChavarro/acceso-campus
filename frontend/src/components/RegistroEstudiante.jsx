@@ -56,6 +56,17 @@ const RegistroEstudiante = () => {
         }
     };
 
+    const handleGenerateCodigo = async () => {
+        setError('')
+        try {
+            const resp = await axios.post(`${API_URL}/estudiantes/generar_codigo/`)
+            const codigo = resp.data?.codigo_estudiante
+            if (codigo) setFormData(prev => ({ ...prev, codigo_estudiante: codigo }))
+        } catch (err) {
+            setError(err.response?.data?.error || "No se pudo generar el código.")
+        }
+    }
+
     const resetForm = () => {
         setStep(1);
         setSuccessData(null);
@@ -65,6 +76,8 @@ const RegistroEstudiante = () => {
             nombre_completo: '',
             correo_institucional: '',
             carrera: '',
+            marca: '',
+            color: '',
             foto_estudiante: null,
             foto_frontal: null,
             foto_respaldo: null,
@@ -190,7 +203,22 @@ const RegistroEstudiante = () => {
                     <h3 className="text-xl font-bold mb-4">Datos del Estudiante</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <input className="border p-2 rounded focus:ring-2 outline-none" placeholder="Documento de Identidad (CC)" value={formData.documento_identidad} onChange={e => setFormData({...formData, documento_identidad: e.target.value})} />
-                        <input className="border p-2 rounded focus:ring-2 outline-none" placeholder="Código de Estudiante" value={formData.codigo_estudiante} onChange={e => setFormData({...formData, codigo_estudiante: e.target.value})} />
+                        <div className="flex gap-2 items-center">
+                            <input
+                                className="border p-2 rounded focus:ring-2 outline-none w-full"
+                                placeholder="Código de Estudiante (opcional)"
+                                value={formData.codigo_estudiante}
+                                onChange={e => setFormData({...formData, codigo_estudiante: e.target.value})}
+                            />
+                            <button
+                                type="button"
+                                onClick={handleGenerateCodigo}
+                                className="shrink-0 bg-slate-100 text-slate-700 border border-slate-200 px-3 py-2 rounded-lg text-sm hover:bg-slate-200 transition"
+                                title="Generar código consecutivo"
+                            >
+                                Generar
+                            </button>
+                        </div>
                         <input className="border p-2 rounded focus:ring-2 outline-none md:col-span-2" placeholder="Nombre Completo" value={formData.nombre_completo} onChange={e => setFormData({...formData, nombre_completo: e.target.value})} />
                         <input className="border p-2 rounded focus:ring-2 outline-none" type="email" placeholder="Correo Institucional" value={formData.correo_institucional} onChange={e => setFormData({...formData, correo_institucional: e.target.value})} />
                         <select 
@@ -218,7 +246,7 @@ const RegistroEstudiante = () => {
                     <div className="flex justify-end">
                         <button 
                             onClick={handleNext} 
-                            disabled={!formData.documento_identidad || !formData.codigo_estudiante || !formData.nombre_completo || !formData.correo_institucional}
+                            disabled={!formData.documento_identidad || !formData.nombre_completo || !formData.correo_institucional}
                             className="bg-blue-600 text-white px-6 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 disabled:opacity-50 transition"
                         >
                             Siguiente <ChevronRight size={18}/>

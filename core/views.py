@@ -9,27 +9,78 @@ from django.db import transaction
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.permissions import AllowAny
-from .models import Estudiante, Dispositivo, HistorialMovimiento
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from .models import Estudiante, Dispositivo, HistorialMovimiento, CodigoEstudianteSequence
 from .serializers import EstudianteSerializer, DispositivoSerializer, HistorialMovimientoSerializer
 
 class EstudianteViewSet(viewsets.ModelViewSet):
     queryset = Estudiante.objects.all()
     serializer_class = EstudianteSerializer
 
-    @action(detail=False, methods=['post'], permission_classes=[AllowAny])
+    def get_permissions(self):
+        # Endpoints públicos (sin JWT)
+        if getattr(self, 'action', None) in {'registro_completo', 'recuperar_qr', 'generar_codigo'}:
+            return [AllowAny()]
+        # Resto: protegido
+        return [IsAuthenticated()]
+
+    def _next_codigo_estudiante(self):
+        seq = CodigoEstudianteSequence.objects.create()
+        return str(seq.id).zfill(6)
+
+    @action(detail=False, methods=['post'])
+    def generar_codigo(self, request):
+        with transaction.atomic():
+            codigo = self._next_codigo_estudiante()
+        return Response({"codigo_estudiante": codigo}, status=status.HTTP_200_OK)
+
+    @action(detail=False, methods=['post'])
+    def recuperar_qr(self, request):
+        """
+        Recupera el código QR del primer dispositivo asociado a un estudiante.
+        Acepta documento_identidad (cc) y/o codigo_estudiante.
+        """
+        cc = (request.data.get('documento_identidad') or '').strip()
+        codigo = (request.data.get('codigo_estudiante') or '').strip()
+
+        if not cc and not codigo:
+            return Response({"error": "Debes enviar documento_identidad o codigo_estudiante"}, status=status.HTTP_400_BAD_REQUEST)
+
+        estudiante = None
+        if cc:
+            estudiante = Estudiante.objects.filter(cc=cc).first()
+        if not estudiante and codigo:
+            estudiante = Estudiante.objects.filter(codigo_estudiante=codigo).first()
+
+        if not estudiante:
+            return Response({"error": "Estudiante no encontrado. Verifica los datos o regístrate."}, status=status.HTTP_404_NOT_FOUND)
+
+        dispositivo = estudiante.dispositivos.order_by('id').first()
+        if not dispositivo:
+            return Response({"error": "No hay dispositivo registrado para este estudiante."}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(
+            {
+                "estudiante": estudiante.nombre_completo,
+                "codigo_qr": dispositivo.codigo_qr,
+                "foto_estudiante_url": estudiante.foto_estudiante_url,
+            },
+            status=status.HTTP_200_OK,
+        )
+
+    @action(detail=False, methods=['post'])
     def registro_completo(self, request):
         data = request.data
 
         cc = data.get('documento_identidad')
-        codigo_estudiante = data.get('codigo_estudiante')
+        codigo_estudiante = (data.get('codigo_estudiante') or '').strip()
         nombre_completo = data.get('nombre_completo')
         correo_institucional = data.get('correo_institucional')
         carrera = data.get('carrera')
         marca = data.get('marca')
         color = data.get('color')
 
-        if not all([cc, codigo_estudiante, nombre_completo, correo_institucional]):
+        if not all([cc, nombre_completo, correo_institucional]):
             return Response(
                 {"error": "Faltan datos obligatorios del estudiante"},
                 status=status.HTTP_400_BAD_REQUEST,
@@ -41,11 +92,8 @@ class EstudianteViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        if Estudiante.objects.filter(codigo_estudiante=codigo_estudiante).exists():
-            return Response(
-                {"error": "Ya existe un estudiante con este código"},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        if codigo_estudiante and Estudiante.objects.filter(codigo_estudiante=codigo_estudiante).exists():
+            return Response({"error": "Ya existe un estudiante con este código"}, status=status.HTTP_400_BAD_REQUEST)
 
         if Estudiante.objects.filter(correo_institucional=correo_institucional).exists():
             return Response(
@@ -68,6 +116,13 @@ class EstudianteViewSet(viewsets.ModelViewSet):
 
         try:
             with transaction.atomic():
+                if not codigo_estudiante:
+                    # Generación automática si no se envía código (casos sin carnet/código).
+                    codigo_estudiante = self._next_codigo_estudiante()
+                    # Evitar colisión si por algún motivo ya existiera.
+                    while Estudiante.objects.filter(codigo_estudiante=codigo_estudiante).exists():
+                        codigo_estudiante = self._next_codigo_estudiante()
+
                 estudiante = Estudiante.objects.create(
                     cc=cc,
                     codigo_estudiante=codigo_estudiante,

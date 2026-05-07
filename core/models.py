@@ -1,5 +1,15 @@
 from django.db import models
 
+class CodigoEstudianteSequence(models.Model):
+    """
+    Secuencia monotónica para generar códigos de estudiante coherentes (incrementales),
+    sin depender de conteos o MAX() sobre strings y evitando condiciones de carrera.
+    """
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'codigo_estudiante_sequence'
+
 class Estudiante(models.Model):
     cc = models.CharField(max_length=20, primary_key=True)
     codigo_estudiante = models.CharField(max_length=50, unique=True)
