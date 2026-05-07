@@ -5,7 +5,6 @@ set -o errexit
 pip install -r requirements.txt
 python manage.py collectstatic --no-input
 python manage.py migrate
-mkdir -p media
 
 # Create superuser from environment variables (only if it doesn't exist yet)
 python manage.py shell << 'EOF'

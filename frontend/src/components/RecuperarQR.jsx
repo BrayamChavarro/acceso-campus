@@ -150,7 +150,7 @@ const RecuperarQR = () => {
                             </div>
                             
                             <button onClick={downloadQR} className="w-full bg-green-600 text-white px-6 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-green-700 shadow mb-4 transition">
-                                <Download size={18} /> Descargar QR (PNG)
+                                <Download size={18} /> Descargar QR
                             </button>
                             
                             <button onClick={() => setQrData(null)} className="w-full bg-gray-100 text-gray-700 px-6 py-2 rounded-lg flex items-center justify-center gap-2 hover:bg-gray-200 transition">
