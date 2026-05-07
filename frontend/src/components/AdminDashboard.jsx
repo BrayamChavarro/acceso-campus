@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Search, Calendar, Users, LogIn, Clock, RefreshCw, X, Mail, Edit, Trash2, Save } from 'lucide-react';
+import SafeImage from './SafeImage'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000';
 const API_URL = `${API_BASE}/api`;
@@ -8,7 +9,12 @@ const API_URL = `${API_BASE}/api`;
 /** Cloudinary/S3 URLs absolutas se usan tal cual; rutas relativas (/media/...) anteponen API_BASE (mismo criterio que App.jsx). */
 const getImgUrl = (url) => {
     if (!url) return '';
-    return url.startsWith('http') ? url : `${API_BASE}${url}`;
+    const u = String(url).trim()
+    if (!u) return ''
+    if (u.startsWith('//')) return `https:${u}`
+    if (/^https?:\/\//i.test(u)) return u
+    const needsSlash = !u.startsWith('/')
+    return `${API_BASE}${needsSlash ? '/' : ''}${u}`
 };
 
 const AdminDashboard = ({ token, isDarkMode }) => {
@@ -451,7 +457,12 @@ const AdminDashboard = ({ token, isDarkMode }) => {
                                 <div className="flex justify-center items-center">
                                     <div className={`w-48 h-48 md:w-56 md:h-56 rounded-2xl overflow-hidden border-4 shadow-lg flex items-center justify-center relative group ${isDarkMode ? 'bg-slate-700 border-slate-600' : 'bg-gray-100 border-white'}`}>
                                         {selectedSession.foto_estudiante ? (
-                                            <img src={getImgUrl(selectedSession.foto_estudiante)} alt="Estudiante" className="w-full h-full object-cover" />
+                                            <SafeImage
+                                                src={getImgUrl(selectedSession.foto_estudiante)}
+                                                alt="Estudiante"
+                                                className="w-full h-full object-cover"
+                                                fallback={<Users size={64} className={isDarkMode ? 'text-slate-500' : 'text-gray-300'} />}
+                                            />
                                         ) : (
                                             <Users size={64} className={isDarkMode ? 'text-slate-500' : 'text-gray-300'} />
                                         )}
@@ -466,7 +477,12 @@ const AdminDashboard = ({ token, isDarkMode }) => {
                                     <p className={`text-sm text-center font-medium mb-2 ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>Vista Frontal</p>
                                     <div className={`w-full h-48 rounded-lg overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'}`}>
                                         {selectedSession.foto_frontal ? (
-                                            <img src={getImgUrl(selectedSession.foto_frontal)} alt="Frontal" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                                            <SafeImage
+                                                src={getImgUrl(selectedSession.foto_frontal)}
+                                                alt="Frontal"
+                                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                                fallback={<span className={`${isDarkMode ? 'text-slate-500' : 'text-gray-400'} text-sm`}>Sin foto frontal</span>}
+                                            />
                                         ) : (
                                             <span className={`${isDarkMode ? 'text-slate-500' : 'text-gray-400'} text-sm`}>Sin foto frontal</span>
                                         )}
@@ -476,7 +492,12 @@ const AdminDashboard = ({ token, isDarkMode }) => {
                                     <p className={`text-sm text-center font-medium mb-2 ${isDarkMode ? 'text-slate-400' : 'text-gray-500'}`}>Vista Posterior / Serie</p>
                                     <div className={`w-full h-48 rounded-lg overflow-hidden flex items-center justify-center ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'}`}>
                                         {selectedSession.foto_respaldo ? (
-                                            <img src={getImgUrl(selectedSession.foto_respaldo)} alt="Posterior" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                                            <SafeImage
+                                                src={getImgUrl(selectedSession.foto_respaldo)}
+                                                alt="Posterior"
+                                                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+                                                fallback={<span className={`${isDarkMode ? 'text-slate-500' : 'text-gray-400'} text-sm`}>Sin foto posterior</span>}
+                                            />
                                         ) : (
                                             <span className={`${isDarkMode ? 'text-slate-500' : 'text-gray-400'} text-sm`}>Sin foto posterior</span>
                                         )}
@@ -534,7 +555,16 @@ const AdminDashboard = ({ token, isDarkMode }) => {
                                                 <td className="p-4">
                                                     <div className="flex items-center gap-3">
                                                         {user.foto_estudiante_url ? (
-                                                            <img src={getImgUrl(user.foto_estudiante_url)} alt="Foto" className="w-10 h-10 rounded-full object-cover border dark:border-slate-600" />
+                                                            <SafeImage
+                                                                src={getImgUrl(user.foto_estudiante_url)}
+                                                                alt="Foto"
+                                                                className="w-10 h-10 rounded-full object-cover border dark:border-slate-600"
+                                                                fallback={
+                                                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${isDarkMode ? 'bg-slate-700 text-slate-400' : 'bg-gray-200 text-gray-500'}`}>
+                                                                        {user.nombre_completo.charAt(0)}
+                                                                    </div>
+                                                                }
+                                                            />
                                                         ) : (
                                                             <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold ${isDarkMode ? 'bg-slate-700 text-slate-400' : 'bg-gray-200 text-gray-500'}`}>
                                                                 {user.nombre_completo.charAt(0)}

@@ -8,6 +8,7 @@ import RecuperarQR from './components/RecuperarQR'
 import RegistroVisitante from './components/RegistroVisitante'
 
 import AdminDashboard from './components/AdminDashboard'
+import SafeImage from './components/SafeImage'
 
 const API_BASE = import.meta.env.VITE_API_URL || 'http://127.0.0.1:8000'
 const API_URL = `${API_BASE}/api`
@@ -15,8 +16,13 @@ const API_URL = `${API_BASE}/api`
 // Si la URL ya es absoluta (Cloudinary, S3, etc.) la usamos directo;
 // si es relativa (legacy /media/...) le anteponemos el API_BASE.
 const getImgUrl = (url) => {
-  if (!url) return null
-  return url.startsWith('http') ? url : `${API_BASE}${url}`
+  if (!url) return ''
+  const u = String(url).trim()
+  if (!u) return ''
+  if (u.startsWith('//')) return `https:${u}`
+  if (/^https?:\/\//i.test(u)) return u
+  const needsSlash = !u.startsWith('/')
+  return `${API_BASE}${needsSlash ? '/' : ''}${u}`
 }
 
 function ControlAcceso() {
@@ -324,7 +330,16 @@ function ControlAcceso() {
                       <div className={`mt-2 ${isDarkMode ? 'bg-slate-700/50 border-slate-600' : 'bg-gradient-to-br from-blue-50 to-white border-blue-100'} p-6 rounded-2xl border shadow-sm`}>
                           <div className="flex gap-6 items-center">
                               {resultado.estudiante.foto_estudiante_url ? (
-                                  <img src={getImgUrl(resultado.estudiante.foto_estudiante_url)} alt="Estudiante" className={`w-28 h-28 object-cover rounded-full shadow-md border-4 ${isDarkMode ? 'border-slate-800' : 'border-white'}`} />
+                                  <SafeImage
+                                    src={getImgUrl(resultado.estudiante.foto_estudiante_url)}
+                                    alt="Estudiante"
+                                    className={`w-28 h-28 object-cover rounded-full shadow-md border-4 ${isDarkMode ? 'border-slate-800' : 'border-white'}`}
+                                    fallback={
+                                      <div className={`w-28 h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
+                                        <User size={40} />
+                                      </div>
+                                    }
+                                  />
                               ) : (
                                   <div className={`w-28 h-28 ${isDarkMode ? 'bg-slate-800' : 'bg-gray-200'} rounded-full flex items-center justify-center text-gray-400 shadow-inner border-4 ${isDarkMode ? 'border-slate-700' : 'border-white'}`}>
                                       <User size={40} />
@@ -358,7 +373,14 @@ function ControlAcceso() {
                                       <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent p-2 z-10">
                                           <span className="text-white text-xs font-medium">Vista Frontal</span>
                                       </div>
-                                      <img src={getImgUrl(resultado.dispositivo.foto_frontal_url)} alt="Frontal" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110" />
+                                      <SafeImage
+                                        src={getImgUrl(resultado.dispositivo.foto_frontal_url)}
+                                        alt="Frontal"
+                                        className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110"
+                                        fallback={
+                                          <div className={`w-full h-32 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`} />
+                                        }
+                                      />
                                   </div>
                               )}
                               {resultado.dispositivo.foto_respaldo_url && (
@@ -366,7 +388,14 @@ function ControlAcceso() {
                                       <div className="absolute top-0 left-0 w-full bg-gradient-to-b from-black/60 to-transparent p-2 z-10">
                                           <span className="text-white text-xs font-medium">Vista Respaldo</span>
                                       </div>
-                                      <img src={getImgUrl(resultado.dispositivo.foto_respaldo_url)} alt="Respaldo" className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110" />
+                                      <SafeImage
+                                        src={getImgUrl(resultado.dispositivo.foto_respaldo_url)}
+                                        alt="Respaldo"
+                                        className="w-full h-32 object-cover transition-transform duration-300 group-hover:scale-110"
+                                        fallback={
+                                          <div className={`w-full h-32 ${isDarkMode ? 'bg-slate-900' : 'bg-gray-100'}`} />
+                                        }
+                                      />
                                   </div>
                               )}
                           </div>
