@@ -359,11 +359,11 @@ const AdminDashboard = ({ token, isDarkMode }) => {
                                         </td>
                                         <td className="p-4">
                                             <span className={`px-3 py-1 rounded-full text-xs font-bold border ${
-                                                sesion.estado === 'Adentro' ? (isDarkMode ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-50 text-green-700 border-green-200') : 
-                                                sesion.estado.includes('Anomalía') ? (isDarkMode ? 'bg-red-900/50 text-red-400 border-red-800' : 'bg-red-50 text-red-700 border-red-200') :
+                                                sesion.estado_actual === 'ADENTRO' ? (isDarkMode ? 'bg-green-900/50 text-green-400 border-green-800' : 'bg-green-50 text-green-700 border-green-200') : 
+                                                sesion.estado_actual?.includes('Anomalía') ? (isDarkMode ? 'bg-red-900/50 text-red-400 border-red-800' : 'bg-red-50 text-red-700 border-red-200') :
                                                 (isDarkMode ? 'bg-slate-700 text-slate-300 border-slate-600' : 'bg-gray-50 text-gray-700 border-gray-200')
                                             }`}>
-                                                {sesion.estado}
+                                                {sesion.estado_actual === 'ADENTRO' ? 'Adentro' : 'Afuera'}
                                             </span>
                                         </td>
                                     </tr>
